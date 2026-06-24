@@ -48,7 +48,9 @@ export const skillGroups: SkillGroup[] = [
       { name: "C++", badge: "C++", color: "#00599C" },
       { name: "JavaScript", badge: "JS", color: "#F7DF1E" },
       { name: "HTML5", badge: "<>", color: "#E34F26" },
-      { name: "CSS3", badge: "{ }", color: "#1572B6" },
+      { name: "CSS", badge: "{ }", color: "#1572B6" },
+      { name: "Python", badge: "Py", color: "#3776AB" },
+      { name: "PHP", badge: "PHP", color: "#777BB4" },
     ],
   },
   {
@@ -67,8 +69,8 @@ export const skillGroups: SkillGroup[] = [
     title: "Developer Tools",
     skills: [
       { name: "VS Code", badge: "VS", color: "#007ACC" },
-      { name: "Eclipse", badge: "Ec", color: "#2C2255" },
-      { name: "IntelliJ IDEA", badge: "IJ", color: "#FE315D" },
+      { name: "GitHub", badge: "GH", color: "#181717" },
+      { name: "Jira", badge: "J", color: "#FF6C37" },
     ],
   },
 ];
@@ -96,17 +98,7 @@ export const projects: Project[] = [
     gradient: "from-teal-500 to-blue-600",
     featured: true,
   },
-  {
-    title: "Online Shopping System (Java)",
-    category: "Desktop",
-    description:
-      "A desktop-based e-commerce simulation built in Java featuring product catalog management, user authentication, shopping cart, order processing, and a simple inventory management system.",
-    techStack: ["Java", "OOP", "File I/O", "Swing"],
-    github: "#",
-    demo: "N/A — Desktop App",
-    gradient: "from-purple-500 to-pink-600",
-    featured: true,
-  },
+  
   {
     title: "OpenGL 3D Ball Simulation",
     category: "Desktop",
@@ -128,11 +120,11 @@ export const projects: Project[] = [
     gradient: "from-blue-500 to-violet-600",
   },
   {
-    title: "Database Management Project",
-    category: "Database",
+    title: "E-Commerce Web Application (Team Project | Full-Stack)",
+    category: "Web",
     description:
-      "A comprehensive database design and implementation project featuring entity-relationship modeling, normalized schema design, complex SQL queries, stored procedures, and data integrity enforcement.",
-    techStack: ["MySQL", "SQL", "ERD", "Database Design"],
+      "A full-stack e-commerce web application built with modern technologies, featuring user authentication, product management, shopping cart functionality, and secure payment processing.",
+    techStack: ["HTML", "SQL"],
     github: "#",
     demo: "N/A",
     gradient: "from-emerald-500 to-teal-600",
@@ -141,8 +133,8 @@ export const projects: Project[] = [
 
 export const education = {
   degree: "Bachelor of Science in Computer Science",
-  university: "[University Name]",
-  period: "[Start Year] – [Graduation Year]",
+  university: "[lebanese University] · [Faculty of Science]",
+  period: "[2023] – [2026]",
   gpa: "3.80 / 4.00",
   courses: [
     "Data Structures & Algorithms",
