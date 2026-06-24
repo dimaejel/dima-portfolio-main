@@ -1,0 +1,150 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-card: var(--surface);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--surface);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--primary-foreground);
+  --color-muted: var(--elevated);
+  --color-muted-foreground: var(--text-secondary);
+  --color-accent: var(--primary);
+  --color-accent-foreground: var(--primary-foreground);
+  --color-destructive: oklch(0.62 0.22 25);
+  --color-destructive-foreground: var(--primary-foreground);
+  --color-border: var(--border);
+  --color-input: var(--elevated);
+  --color-ring: var(--primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-success: var(--success);
+
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --animate-float-orbit: orbit 18s linear infinite;
+  --animate-blob: blob 14s ease-in-out infinite;
+  --animate-blink: blink 1s steps(2) infinite;
+}
+
+:root {
+  --radius: 0.75rem;
+  --background: #0A0F1E;
+  --surface: #0F1729;
+  --elevated: #162040;
+  --primary: #4F8EF7;
+  --primary-foreground: #FFFFFF;
+  --secondary: #7C3AED;
+  --foreground: #F0F4FF;
+  --text-secondary: #8B9CC8;
+  --text-muted: #4A5780;
+  --border: #1E2D50;
+  --success: #10B981;
+
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--elevated);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--primary);
+}
+
+.dark {
+  --background: #0A0F1E;
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(var(--orbit-r, 180px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--orbit-r, 180px)) rotate(-360deg); }
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(30px,-20px) scale(1.05); }
+  66%      { transform: translate(-20px,15px) scale(0.97); }
+}
+
+@keyframes blink {
+  to { opacity: 0; }
+}
+
+@utility heading-spark {
+  position: relative;
+  padding-bottom: 14px;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 3.5rem;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #4F8EF7, #7C3AED);
+  }
+}
+
+@utility heading-spark-center {
+  position: relative;
+  padding-bottom: 14px;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 3.5rem;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #4F8EF7, #7C3AED);
+  }
+}
+
+@utility text-gradient {
+  background: linear-gradient(90deg, #4F8EF7, #7C3AED);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-gradient-brand {
+  background-image: linear-gradient(135deg, #4F8EF7 0%, #7C3AED 100%);
+}
+
+@utility dot-grid {
+  background-image: radial-gradient(rgba(240,244,255,0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 { font-family: var(--font-display); }
+  ::selection { background: rgba(79,142,247,0.35); color: #fff; }
+}
