@@ -12,7 +12,7 @@ export const personalInfo = {
   title: "Computer Science Graduate",
   roles: ["Software Engineer", "Web Developer", "Problem Solver"],
   bio: "Passionate about building elegant, scalable software solutions. I thrive at the intersection of clean code, intuitive design, and real-world impact. Currently seeking opportunities in Software Engineering and Web Development.",
-  email: "your.email@example.com",
+  email: "dimaejel79@gmail.com",
   linkedin: "linkedin.com/in/dima-ejel",
   linkedinUrl: "https://linkedin.com/in/dima-ejel",
   github: "github.com/dimaejel",
