@@ -17,7 +17,7 @@ export const personalInfo = {
   linkedinUrl: "https://linkedin.com/in/dima-ejel",
   github: "github.com/dimaejel",
   githubUrl: "https://github.com/dimaejel ",
-  location: "[City, Country] · Open to Remote",
+  location: "[akkar, Jdeidet El Qaytaa] · Open to Remote",
   stats: [
     { label: "Projects", value: "4+" },
     { label: "Technologies", value: "10+" },
@@ -47,7 +47,7 @@ export const skillGroups: SkillGroup[] = [
       { name: "C", badge: "C", color: "#5C6BC0" },
       { name: "C++", badge: "C++", color: "#00599C" },
       { name: "JavaScript", badge: "JS", color: "#F7DF1E" },
-      { name: "HTML5", badge: "<>", color: "#E34F26" },
+      { name: "HTML", badge: "<>", color: "#E34F26" },
       { name: "CSS", badge: "{ }", color: "#1572B6" },
       { name: "Python", badge: "Py", color: "#3776AB" },
       { name: "PHP", badge: "PHP", color: "#777BB4" },
