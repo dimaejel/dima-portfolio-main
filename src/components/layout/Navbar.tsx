@@ -33,9 +33,12 @@ export function Navbar() {
     return () => obs.disconnect();
   }, []);
 
-  const handleDownload = () => {
-    alert("CV coming soon — drop your PDF in /public/cv.pdf to enable this download.");
-  };
+const handleDownload = () => {
+  const link = document.createElement("a");
+  link.href = "public/dimaejel_cv.pdf";
+  link.download = "Dima_Ejel_CV.pdf";
+  link.click();
+};
 
   return (
     <>

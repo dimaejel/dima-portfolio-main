@@ -51,11 +51,51 @@ function Typewriter({ words }: { words: string[] }) {
   );
 }
 
+function ProfilePhoto() {
+  const [hasError, setHasError] = useState(false);
+
+  if (hasError) {
+    return (
+      <div className="relative h-full w-full rounded-full bg-gradient-to-br from-elevated to-surface border border-border flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 dot-grid opacity-30" />
+        <User className="h-24 w-24 text-text-muted relative" />
+        <span className="mt-3 text-xs font-mono text-text-muted relative">
+          Your Photo Here
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative h-full w-full rounded-full overflow-hidden border-2 border-primary/30 shadow-[0_0_40px_rgba(79,142,247,0.2)]">
+      <img
+        src="/profile.jpg"
+        alt={`${personalInfo.name} — profile photo`}
+        onError={() => setHasError(true)}
+        className="h-full w-full object-cover"
+          style={{
+        position: "absolute",
+        width: "150%",
+        height: "100%",
+        top: "0.5%",
+        left: "-1.5%",
+        objectFit: "cover",
+      }}
+      />
+      <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-background/40 to-transparent" />
+    </div>
+  );
+}
+
 export function Hero() {
   const orbitChips = ["React", "Java", "Node.js", "MySQL"];
 
-  const handleDownload = () =>
-    alert("CV coming soon — drop your PDF in /public/cv.pdf to enable this download.");
+  const handleDownload = () => {
+  const link = document.createElement("a");
+  link.href = "public/dimaejel_cv.pdf";
+  link.download = "Dima_Ejel_CV.pdf";
+  link.click();
+};
 
   return (
     <section
@@ -205,14 +245,11 @@ export function Hero() {
           transition={{ delay: 0.5, duration: 0.8, ease: "easeOut" }}
           className="relative mx-auto h-[280px] w-[280px] sm:h-[360px] sm:w-[360px]"
         >
+          {/* glow behind photo */}
           <div className="absolute inset-0 rounded-full bg-primary/20 blur-3xl" />
-          <div className="relative h-full w-full rounded-full bg-gradient-to-br from-elevated to-surface border border-border flex flex-col items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 dot-grid opacity-30" />
-            <User className="h-24 w-24 text-text-muted relative" />
-            <span className="mt-3 text-xs font-mono text-text-muted relative">
-              Your Photo Here
-            </span>
-          </div>
+
+          {/* photo or fallback */}
+          <ProfilePhoto />
 
           {/* orbiting chips */}
           <div className="pointer-events-none absolute inset-0 hidden sm:block">
