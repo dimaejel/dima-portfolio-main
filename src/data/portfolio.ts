@@ -7,8 +7,8 @@ import {
 } from "lucide-react";
 
 export const personalInfo = {
-  name: "Alex Morgan",
-  initials: "AM",
+  name: "Dima Ejel",
+  initials: "DE",
   title: "Computer Science Graduate",
   roles: ["Software Engineer", "Web Developer", "Problem Solver"],
   bio: "Passionate about building elegant, scalable software solutions. I thrive at the intersection of clean code, intuitive design, and real-world impact. Currently seeking opportunities in Software Engineering and Web Development.",
@@ -159,18 +159,7 @@ export type Experience = {
 };
 
 export const experience: Experience[] = [
-  {
-    role: "Software Development Intern",
-    company: "[Company Name] · Internship",
-    period: "[Month Year] – [Month Year]",
-    type: "Internship",
-    bullets: [
-      "Assisted in developing and maintaining web application features",
-      "Collaborated with senior developers on code reviews and debugging",
-      "Contributed to database design and optimization tasks",
-      "Documented technical specifications and code comments",
-    ],
-  },
+
   {
     role: "Academic Project Lead",
     company: "University · Academic",
