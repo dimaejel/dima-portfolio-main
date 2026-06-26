@@ -92,7 +92,7 @@ export const projects: Project[] = [
     category: "Web",
     description:
       "A full-featured web application for managing hospital operations including patient registration, appointment scheduling, doctor management, and medical record tracking. Built with a focus on clean UI and reliable data management.",
-    techStack: ["HTML5", "CSS3", "JavaScript", "MySQL"],
+    techStack: ["HTML", "CSS", "JavaScript", "MySQL"],
     github: "#",
     demo: "#",
     gradient: "from-teal-500 to-blue-600",
