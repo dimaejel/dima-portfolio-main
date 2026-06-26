@@ -63,7 +63,7 @@ export function About() {
                 {"\n  "}
                 <span className="text-[#9cdcfe]">role</span>
                 <span className="text-foreground">:</span>{" "}
-                <span className="text-[#ce9178]">"CS Graduate"</span>
+                <span className="text-[#ce9178]">""Full Stack Developer"</span>
                 <span className="text-foreground">,</span>
                 {"\n  "}
                 <span className="text-[#9cdcfe]">skills</span>
@@ -75,22 +75,25 @@ export function About() {
                 <span className="text-[#ce9178]">"Node.js"</span>
                 <span className="text-foreground">],</span>
                 {"\n  "}
-                <span className="text-[#9cdcfe]">available</span>
+               
+                <span className="text-[#9cdcfe]">location</span>
+                <span className="text-foreground">:</span>{" "}
+                <span className="text-[#4fc1ff]">Jdeidet El Qaytaa, Lebanon </span>
+                {"\n"}
+
+                  <span className="text-[#9cdcfe]">  available</span>
                 <span className="text-foreground">:</span>{" "}
                 <span className="text-[#569cd6]">true</span>
                 <span className="text-foreground">,</span>
                 {"\n  "}
-                <span className="text-[#9cdcfe]">coffee</span>
-                <span className="text-foreground">:</span>{" "}
-                <span className="text-[#4fc1ff]">Infinity</span>
-                {"\n"}
+                
                 <span className="text-foreground">{"};"}</span>
               </code>
             </pre>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="rounded-2xl border border-border bg-surface p-5">
-              <div className="font-display font-extrabold text-3xl text-gradient">4+</div>
+              <div className="font-display font-extrabold text-3xl text-gradient">5+</div>
               <div className="text-sm text-text-secondary mt-1">Projects Completed</div>
             </div>
             <div className="rounded-2xl border border-border bg-surface p-5">

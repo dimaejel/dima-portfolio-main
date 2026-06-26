@@ -37,9 +37,9 @@ export function Contact() {
 
   return (
     <Section id="contact">
-      <div className="grid lg:grid-cols-2 gap-12">
-        <Reveal className="space-y-6">
-          <SectionEyebrow>Contact</SectionEyebrow>
+      <div className="flex flex-col items-center text-center">
+        <Reveal className="space-y-6 md:max-w-3xl">
+          <SectionEyebrow align="center">Contact</SectionEyebrow>
           <h2 className="font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl text-foreground">
             Let's Work <span className="text-gradient">Together.</span>
           </h2>
@@ -47,50 +47,44 @@ export function Contact() {
             I'm currently open to full-time Software Engineering, Web Development, and IT
             roles. Reach out — I respond within 24 hours.
           </p>
-
-          <div className="space-y-3 pt-2">
-            <ContactRow
-              icon={<Mail className="h-5 w-5" />}
-              label="Email"
-              value={personalInfo.email}
-              href={`mailto:${personalInfo.email}`}
-            />
-            <ContactRow
-              icon={<Linkedin className="h-5 w-5" />}
-              label="LinkedIn"
-              value={personalInfo.linkedin}
-              href={personalInfo.linkedinUrl}
-            />
-            <ContactRow
-              icon={<Github className="h-5 w-5" />}
-              label="GitHub"
-              value={personalInfo.github}
-              href={personalInfo.githubUrl}
-            />
-            <ContactRow
-              icon={<MapPin className="h-5 w-5" />}
-              label="Location"
-              value={personalInfo.location}
-            />
-          </div>
-
-          <div className="flex items-center gap-3 pt-4">
-            {[
-              { icon: Github, href: personalInfo.githubUrl, label: "GitHub" },
-              { icon: Linkedin, href: personalInfo.linkedinUrl, label: "LinkedIn" },
-              { icon: Mail, href: `mailto:${personalInfo.email}`, label: "Email" },
-            ].map(({ icon: Icon, href, label }) => (
-              <a
-                key={label}
-                href={href}
-                aria-label={label}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-text-secondary hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors"
-              >
-                <Icon className="h-5 w-5" />
-              </a>
-            ))}
-          </div>
         </Reveal>
+
+        <div className="mt-12 grid w-full max-w-5xl grid-cols-1 gap-5 md:grid-cols-3">
+          <ContactRow
+            icon={<Mail className="h-5 w-5" />}
+            label="Email"
+            value={personalInfo.email}
+            href={`mailto:${personalInfo.email}`}
+          />
+          <ContactRow
+            icon={<Mail className="h-5 w-5" />}
+            label="Phone"
+            value={personalInfo.phone}
+            href={`tel:${personalInfo.phone.replace(/\s+/g, "")}`}
+          />
+          <ContactRow
+            icon={<MapPin className="h-5 w-5" />}
+            label="Location"
+            value={personalInfo.location}
+          />
+        </div>
+
+        <div className="flex justify-center gap-3 pt-8">
+          {[
+            { icon: Github, href: personalInfo.githubUrl, label: "GitHub" },
+            { icon: Linkedin, href: personalInfo.linkedinUrl, label: "LinkedIn" },
+          
+          ].map(({ icon: Icon, href, label }) => (
+            <a
+              key={label}
+              href={href}
+              aria-label={label}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border text-text-secondary hover:bg-primary/10 hover:border-primary hover:text-primary transition-colors"
+            >
+              <Icon className="h-5 w-5" />
+            </a>
+          ))}
+        </div>
       </div>
     </Section>
   );

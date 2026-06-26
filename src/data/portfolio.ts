@@ -17,7 +17,8 @@ export const personalInfo = {
   linkedinUrl: "https://linkedin.com/in/dima-ejel",
   github: "github.com/dimaejel",
   githubUrl: "https://github.com/dimaejel ",
-  location: "[akkar, Jdeidet El Qaytaa] · Open to Remote",
+  location: "[akkar, Jdeidet El Qaytaa]",
+  phone: "+961 79 317 242",
   stats: [
     { label: "Projects", value: "4+" },
     { label: "Technologies", value: "10+" },
@@ -135,7 +136,6 @@ export const education = {
   degree: "Bachelor of Science in Computer Science",
   university: "[lebanese University] · [Faculty of Science]",
   period: "[2023] – [2026]",
-  gpa: "3.80 / 4.00",
   courses: [
     "Data Structures & Algorithms",
     "Object-Oriented Programming",
