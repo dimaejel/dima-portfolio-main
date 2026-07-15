@@ -12,21 +12,18 @@ export function About() {
           </h2>
           <div className="space-y-4 text-text-secondary leading-relaxed">
             <p>
-              I'm a Computer Science graduate with a deep passion for software development
-              and technology. My academic journey has equipped me with strong foundations in
-              algorithms, data structures, software engineering principles, and full-stack
-              development.
+              I'm a Computer Science graduate with a deep passion for software development and
+              technology. My academic journey has equipped me with strong foundations in algorithms,
+              data structures, software engineering principles, and full-stack development.
             </p>
             <p>
-              I love breaking down complex problems into elegant solutions. Whether it's
-              building efficient backend systems, designing intuitive web interfaces, or
-              modeling relational databases — I approach every challenge with curiosity and
-              discipline.
+              I love breaking down complex problems into elegant solutions. Whether it's building
+              efficient backend systems, designing intuitive web interfaces, or modeling relational
+              databases — I approach every challenge with curiosity and discipline.
             </p>
             <p>
-              My goal is to join a forward-thinking team where I can contribute meaningful
-              code from day one, grow as an engineer, and help build products that make a
-              real difference.
+              My goal is to join a forward-thinking team where I can contribute meaningful code from
+              day one, grow as an engineer, and help build products that make a real difference.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 pt-2">
@@ -75,18 +72,15 @@ export function About() {
                 <span className="text-[#ce9178]">"Node.js"</span>
                 <span className="text-foreground">],</span>
                 {"\n  "}
-               
                 <span className="text-[#9cdcfe]">location</span>
                 <span className="text-foreground">:</span>{" "}
                 <span className="text-[#4fc1ff]">Jdeidet El Qaytaa, Lebanon </span>
                 {"\n"}
-
-                  <span className="text-[#9cdcfe]">  available</span>
+                <span className="text-[#9cdcfe]"> available</span>
                 <span className="text-foreground">:</span>{" "}
                 <span className="text-[#569cd6]">true</span>
                 <span className="text-foreground">,</span>
                 {"\n  "}
-                
                 <span className="text-foreground">{"};"}</span>
               </code>
             </pre>

@@ -23,12 +23,19 @@ export function AdminLayout() {
           </div>
           <nav className="space-y-2">
             {links.map((link) => (
-              <Link key={link.to} to={link.to as never} className="block rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-background hover:text-foreground">
+              <Link
+                key={link.to}
+                to={link.to as never}
+                className="block rounded-lg px-3 py-2 text-sm text-text-secondary hover:bg-background hover:text-foreground"
+              >
                 {link.label}
               </Link>
             ))}
           </nav>
-          <button onClick={logout} className="mt-8 rounded-lg border border-border px-3 py-2 text-sm">
+          <button
+            onClick={logout}
+            className="mt-8 rounded-lg border border-border px-3 py-2 text-sm"
+          >
             Log out
           </button>
         </aside>
