@@ -1,0 +1,147 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "email": "admin@example.com",
+      "password": "$2a$10$qUHnjCWcbACQ4TdU8ooPV.fON7dDF/u7mbocSqxhjvzf8zGDyIOyq",
+      "name": "Admin",
+      "role": "ADMIN",
+      "createdAt": "2026-07-15T19:46:40.283Z",
+      "profile": {
+        "id": "profile-1",
+        "userId": "admin-1",
+        "bio": "Portfolio Administrator",
+        "location": "",
+        "website": ""
+      }
+    }
+  ],
+  "projects": [
+    {
+      "id": "bb5eb752-7101-42c9-aeda-c9b6c6bae325",
+      "title": "openg3",
+      "category": "Web",
+      "description": "dec3",
+      "techStack": [
+        "gkk"
+      ],
+      "github": "#",
+      "demo": "#",
+      "gradient": "from-slate-500 to-slate-600",
+      "featured": false
+    },
+    {
+      "id": "977cf640-746e-4a7e-bb46-ec5c8a437c88",
+      "title": "ecommerce",
+      "category": "Web",
+      "description": "bwffhwrj",
+      "techStack": [
+        "nefgflkwrjl;"
+      ],
+      "github": "#",
+      "demo": "#vvnd",
+      "gradient": "from-slate-500 to-slate-600",
+      "featured": false
+    },
+    {
+      "id": "project-1",
+      "title": "Hospital Management Website",
+      "category": "Web",
+      "description": "A full-featured web application for managing hospital operations including patient registration, appointment scheduling, doctor management, and medical record tracking.",
+      "techStack": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "MySQL"
+      ],
+      "github": "#",
+      "demo": "#",
+      "gradient": "from-teal-500 to-blue-600",
+      "featured": true
+    }
+  ],
+  "skills": [
+    {
+      "id": "skill-group-1",
+      "title": "Programming Languages",
+      "skills": [
+        {
+          "name": "Java",
+          "badge": "Jv",
+          "color": "#F89820"
+        },
+        {
+          "name": "C",
+          "badge": "C",
+          "color": "#5C6BC0"
+        },
+        {
+          "name": "JavaScript",
+          "badge": "JS",
+          "color": "#F7DF1E"
+        }
+      ]
+    },
+    {
+      "id": "skill-group-2",
+      "title": "Frameworks & Libraries",
+      "skills": [
+        {
+          "name": "React",
+          "badge": "⚛",
+          "color": "#61DAFB"
+        },
+        {
+          "name": "Node.js",
+          "badge": "N",
+          "color": "#3C873A"
+        }
+      ]
+    }
+  ],
+  "experience": [
+    {
+      "id": "experience-1",
+      "role": "Academic Project Leadd",
+      "company": "University · Academic",
+      "period": "[Year]",
+      "type": "Academic",
+      "bullets": [
+        "Led a team to design and deliver a full-stack project.",
+        "Applied software engineering best practices.",
+        "Presented the final deliverable to faculty."
+      ]
+    },
+    {
+      "id": "experience-2",
+      "role": "Freelance Web Developer",
+      "company": "Self-Employed · Freelance",
+      "period": "[Year] – Present",
+      "type": "Freelance",
+      "bullets": [
+        "Built websites for local clients.",
+        "Managed project lifecycle from planning to launch.",
+        "Maintained post-launch support."
+      ]
+    }
+  ],
+  "certificates": [
+    {
+      "id": "certificate-1",
+      "title": "Introduction to Web Developmentt",
+      "issuer": "Coursera",
+      "date": "2024",
+      "link": "#",
+      "gradient": "from-blue-500 to-cyan-500"
+    },
+    {
+      "id": "certificate-2",
+      "title": "React - The Complete Guide",
+      "issuer": "Udemy",
+      "date": "2024",
+      "link": "#",
+      "gradient": "from-sky-500 to-indigo-500"
+    }
+  ],
+  "profile": null
+}

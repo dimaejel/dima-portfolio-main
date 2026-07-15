@@ -1,8 +1,10 @@
 import { motion } from "motion/react";
-import { skillGroups } from "@/data/portfolio";
+import { useSkills } from "@/hooks/useSkills";
 import { Reveal, Section, SectionEyebrow, staggerContainer, staggerItem } from "./_shared";
 
 export function Skills() {
+  const { data: skillGroups, isLoading, error } = useSkills();
+
   return (
     <Section id="skills" className="bg-surface/60">
       <Reveal className="text-center max-w-2xl mx-auto mb-14">
@@ -16,8 +18,15 @@ export function Skills() {
         </p>
       </Reveal>
 
-      <div className="space-y-12">
-        {skillGroups.map((group) => (
+      {isLoading ? (
+        <div className="text-center text-sm text-text-secondary">Loading skills…</div>
+      ) : error ? (
+        <div className="text-center text-sm text-red-400">{error}</div>
+      ) : skillGroups.length === 0 ? (
+        <div className="text-center text-sm text-text-secondary">No skills available yet.</div>
+      ) : (
+        <div className="space-y-12">
+          {skillGroups.map((group) => (
           <Reveal key={group.title}>
             <div className="flex items-center gap-4 mb-5">
               <h3 className="font-display font-bold text-foreground text-lg">
@@ -63,8 +72,9 @@ export function Skills() {
               ))}
             </motion.div>
           </Reveal>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </Section>
   );
 }

@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ExternalLink, Github, Sparkles } from "lucide-react";
-import { categoryIcons, projects, type Project } from "@/data/portfolio";
+import { categoryIcons } from "@/data/portfolio";
+import { useProjects } from "@/hooks/useProjects";
+import type { ProjectItem } from "@/types";
 import { Reveal, Section, SectionEyebrow } from "./_shared";
 
 const filters = ["All", "Web", "Desktop", "Database"] as const;
@@ -9,9 +11,10 @@ type Filter = (typeof filters)[number];
 
 export function Projects() {
   const [filter, setFilter] = useState<Filter>("All");
+  const { data: projects, isLoading, error } = useProjects();
   const list = useMemo(
     () => (filter === "All" ? projects : projects.filter((p) => p.category === filter)),
-    [filter],
+    [filter, projects],
   );
 
   return (
@@ -43,19 +46,27 @@ export function Projects() {
         ))}
       </Reveal>
 
-      <motion.div layout className="grid md:grid-cols-2 gap-6">
-        <AnimatePresence mode="popLayout">
-          {list.map((p) => (
-            <ProjectCard key={p.title} project={p} />
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      {isLoading ? (
+        <div className="text-center text-sm text-text-secondary">Loading projects…</div>
+      ) : error ? (
+        <div className="text-center text-sm text-red-400">{error}</div>
+      ) : list.length === 0 ? (
+        <div className="text-center text-sm text-text-secondary">No projects available yet.</div>
+      ) : (
+        <motion.div layout className="grid md:grid-cols-2 gap-6">
+          <AnimatePresence mode="popLayout">
+            {list.map((p) => (
+              <ProjectCard key={p.title} project={p} />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      )}
     </Section>
   );
 }
 
-function ProjectCard({ project }: { project: Project }) {
-  const Icon = categoryIcons[project.category];
+function ProjectCard({ project }: { project: ProjectItem }) {
+  const Icon = categoryIcons[project.category as keyof typeof categoryIcons] ?? categoryIcons.Web;
   return (
     <motion.article
       layout

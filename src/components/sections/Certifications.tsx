@@ -1,8 +1,10 @@
 import { Award, ExternalLink } from "lucide-react";
-import { certifications } from "@/data/portfolio";
+import { useCertificates } from "@/hooks/useCertificates";
 import { Reveal, Section, SectionEyebrow } from "./_shared";
 
 export function Certifications() {
+  const { data: certifications, isLoading, error } = useCertificates();
+
   return (
     <Section id="certifications">
       <Reveal className="text-center max-w-2xl mx-auto mb-12">
@@ -12,8 +14,15 @@ export function Certifications() {
         </h2>
       </Reveal>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {certifications.map((c, i) => (
+      {isLoading ? (
+        <div className="text-center text-sm text-text-secondary">Loading certifications…</div>
+      ) : error ? (
+        <div className="text-center text-sm text-red-400">{error}</div>
+      ) : certifications.length === 0 ? (
+        <div className="text-center text-sm text-text-secondary">No certifications available yet.</div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {certifications.map((c, i) => (
           <Reveal key={c.title} delay={i * 0.05}>
             <article className="group h-full rounded-2xl border border-border bg-surface overflow-hidden transition-all hover:border-primary/40 hover:-translate-y-1">
               <div
@@ -39,8 +48,9 @@ export function Certifications() {
               </div>
             </article>
           </Reveal>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </Section>
   );
 }
