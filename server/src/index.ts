@@ -27,7 +27,7 @@ const jwtSecret = process.env.JWT_SECRET || "dev-secret";
 
 app.use(
   cors({
-    origin: ["http://localhost:8081", "http://localhost:5173"],
+    origin: ["http://localhost:8080", "http://localhost:8081", "http://localhost:5173"],
     credentials: true,
   }),
 );
@@ -535,6 +535,6 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(port, () => {
+app.listen(port, async () => {
   console.log(`Portfolio CMS server listening on http://localhost:${port}`);
 });

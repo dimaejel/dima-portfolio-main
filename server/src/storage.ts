@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-
+import { supabase } from "./supabase.js";
 export type UserRole = "ADMIN" | "USER";
 
 export interface ProfileRecord {
@@ -199,4 +199,16 @@ export async function readStore(): Promise<ContentStore> {
 export async function writeStore(store: ContentStore) {
   await ensureStoreFile();
   await writeFile(dataFile, JSON.stringify(store, null, 2));
+}
+export async function testSupabase() {
+  const { data, error } = await supabase
+    .from("projects")
+    .select("*");
+
+  if (error) {
+    console.log(error);
+    return;
+  }
+
+  console.log(data);
 }
