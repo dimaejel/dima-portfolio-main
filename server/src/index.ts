@@ -736,6 +736,10 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(port, async () => {
-  console.log(`Portfolio CMS server listening on http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, async () => {
+    console.log(`Portfolio CMS server listening on http://localhost:${port}`);
+  });
+}
+
+export default app;
