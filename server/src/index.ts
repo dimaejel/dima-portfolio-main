@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import bcrypt from "bcryptjs";
 import cors from "cors";
+import { supabase } from "./supabase.js";
 import dotenv from "dotenv";
 import express, { type NextFunction, type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
@@ -15,6 +16,7 @@ import {
   type UserRecord,
   type UserRole,
 } from "./storage.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -234,10 +236,21 @@ app.get("/api/auth/me", authenticate, async (req: AuthenticatedRequest, res: Res
 });
 
 app.get("/api/projects", async (_req, res: Response) => {
-  const store = await readStore();
-  res.json(store.projects);
-});
+  const { data, error } = await supabase.from("projects").select("*");
 
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.json(
+    data.map((project) => ({
+      ...project,
+      techStack: project.techstack,
+    })),
+  );
+});
 app.post(
   "/api/projects",
   authenticate,
@@ -249,50 +262,95 @@ app.post(
       return;
     }
 
-    const store = await readStore();
-    const project = { id: randomUUID(), ...parsed.data };
-    store.projects.unshift(project);
-    await writeStore(store);
-    res.status(201).json(project);
+    const { data, error } = await supabase
+      .from("projects")
+      .insert({
+        title: parsed.data.title,
+        category: parsed.data.category,
+        description: parsed.data.description,
+        techstack: parsed.data.techStack,
+        github: parsed.data.github,
+        demo: parsed.data.demo,
+        gradient: parsed.data.gradient,
+        featured: parsed.data.featured,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    res.status(201).json({
+      ...data,
+      techStack: data.techstack,
+    });
   },
 );
-
 app.put(
   "/api/projects/:id",
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = projectSchema.safeParse(req.body);
+
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
 
-    const store = await readStore();
-    const index = store.projects.findIndex((item) => item.id === req.params.id);
-    if (index < 0) {
-      res.status(404).json({ error: "Project not found" });
+    const { data, error } = await supabase
+      .from("projects")
+      .update({
+        title: parsed.data.title,
+        category: parsed.data.category,
+        description: parsed.data.description,
+        techstack: parsed.data.techStack,
+        github: parsed.data.github,
+        demo: parsed.data.demo,
+        gradient: parsed.data.gradient,
+        featured: parsed.data.featured,
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+
+      if (error.code === "PGRST116") {
+        res.status(404).json({ error: "Project not found" });
+        return;
+      }
+
+      res.status(500).json({ error: error.message });
       return;
     }
 
-    store.projects[index] = { ...store.projects[index], ...parsed.data };
-    await writeStore(store);
-    res.json(store.projects[index]);
+    res.json({
+      ...data,
+      techStack: data.techstack,
+    });
   },
 );
-
 app.delete(
   "/api/projects/:id",
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
-    const store = await readStore();
-    store.projects = store.projects.filter((item) => item.id !== req.params.id);
-    await writeStore(store);
+    const { error } = await supabase.from("projects").delete().eq("id", req.params.id);
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
     res.status(204).send();
   },
 );
-
 app.post(
   "/api/projects/:id/image",
   authenticate,
@@ -318,10 +376,16 @@ app.post(
 );
 
 app.get("/api/skills", async (_req, res: Response) => {
-  const store = await readStore();
-  res.json(store.skills);
-});
+  const { data, error } = await supabase.from("skills").select("*");
 
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.json(data);
+});
 app.post(
   "/api/skills",
   authenticate,
@@ -333,11 +397,22 @@ app.post(
       return;
     }
 
-    const store = await readStore();
-    const skill = { id: randomUUID(), ...parsed.data };
-    store.skills.unshift(skill);
-    await writeStore(store);
-    res.status(201).json(skill);
+    const { data, error } = await supabase
+      .from("skills")
+      .insert({
+        title: parsed.data.title,
+        skills: parsed.data.skills,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    res.status(201).json(data);
   },
 );
 
@@ -347,21 +422,35 @@ app.put(
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = skillSchema.safeParse(req.body);
+
     if (!parsed.success) {
       res.status(400).json({ error: parsed.error.flatten() });
       return;
     }
 
-    const store = await readStore();
-    const index = store.skills.findIndex((item) => item.id === req.params.id);
-    if (index < 0) {
-      res.status(404).json({ error: "Skill group not found" });
+    const { data, error } = await supabase
+      .from("skills")
+      .update({
+        title: parsed.data.title,
+        skills: parsed.data.skills,
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+
+      if (error.code === "PGRST116") {
+        res.status(404).json({ error: "Skill group not found" });
+        return;
+      }
+
+      res.status(500).json({ error: error.message });
       return;
     }
 
-    store.skills[index] = { ...store.skills[index], ...parsed.data };
-    await writeStore(store);
-    res.json(store.skills[index]);
+    res.json(data);
   },
 );
 
@@ -370,16 +459,27 @@ app.delete(
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
-    const store = await readStore();
-    store.skills = store.skills.filter((item) => item.id !== req.params.id);
-    await writeStore(store);
+    const { error } = await supabase.from("skills").delete().eq("id", req.params.id);
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
     res.status(204).send();
   },
 );
-
 app.get("/api/experience", async (_req, res: Response) => {
-  const store = await readStore();
-  res.json(store.experience);
+  const { data, error } = await supabase.from("experience").select("*");
+
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.json(data);
 });
 
 app.post(
@@ -393,11 +493,25 @@ app.post(
       return;
     }
 
-    const store = await readStore();
-    const experience = { id: randomUUID(), ...parsed.data };
-    store.experience.unshift(experience);
-    await writeStore(store);
-    res.status(201).json(experience);
+    const { data, error } = await supabase
+      .from("experience")
+      .insert({
+        role: parsed.data.role,
+        company: parsed.data.company,
+        period: parsed.data.period,
+        type: parsed.data.type,
+        bullets: parsed.data.bullets,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    res.status(201).json(data);
   },
 );
 
@@ -412,16 +526,26 @@ app.put(
       return;
     }
 
-    const store = await readStore();
-    const index = store.experience.findIndex((item) => item.id === req.params.id);
-    if (index < 0) {
-      res.status(404).json({ error: "Experience entry not found" });
+    const { data, error } = await supabase
+      .from("experience")
+      .update({
+        role: parsed.data.role,
+        company: parsed.data.company,
+        period: parsed.data.period,
+        type: parsed.data.type,
+        bullets: parsed.data.bullets,
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
       return;
     }
 
-    store.experience[index] = { ...store.experience[index], ...parsed.data };
-    await writeStore(store);
-    res.json(store.experience[index]);
+    res.json(data);
   },
 );
 
@@ -430,16 +554,28 @@ app.delete(
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
-    const store = await readStore();
-    store.experience = store.experience.filter((item) => item.id !== req.params.id);
-    await writeStore(store);
+    const { error } = await supabase.from("experience").delete().eq("id", req.params.id);
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
     res.status(204).send();
   },
 );
 
 app.get("/api/certificates", async (_req, res: Response) => {
-  const store = await readStore();
-  res.json(store.certificates);
+  const { data, error } = await supabase.from("certificates").select("*");
+
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.json(data);
 });
 
 app.post(
@@ -453,11 +589,25 @@ app.post(
       return;
     }
 
-    const store = await readStore();
-    const certificate = { id: randomUUID(), ...parsed.data };
-    store.certificates.unshift(certificate);
-    await writeStore(store);
-    res.status(201).json(certificate);
+    const { data, error } = await supabase
+      .from("certificates")
+      .insert({
+        title: parsed.data.title,
+        issuer: parsed.data.issuer,
+        date: parsed.data.date,
+        link: parsed.data.link,
+        gradient: parsed.data.gradient,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    res.status(201).json(data);
   },
 );
 
@@ -472,16 +622,26 @@ app.put(
       return;
     }
 
-    const store = await readStore();
-    const index = store.certificates.findIndex((item) => item.id === req.params.id);
-    if (index < 0) {
-      res.status(404).json({ error: "Certificate not found" });
+    const { data, error } = await supabase
+      .from("certificates")
+      .update({
+        title: parsed.data.title,
+        issuer: parsed.data.issuer,
+        date: parsed.data.date,
+        link: parsed.data.link,
+        gradient: parsed.data.gradient,
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
       return;
     }
 
-    store.certificates[index] = { ...store.certificates[index], ...parsed.data };
-    await writeStore(store);
-    res.json(store.certificates[index]);
+    res.json(data);
   },
 );
 
@@ -490,44 +650,85 @@ app.delete(
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
-    const store = await readStore();
-    store.certificates = store.certificates.filter((item) => item.id !== req.params.id);
-    await writeStore(store);
+    const { error } = await supabase.from("certificates").delete().eq("id", req.params.id);
+
+    if (error) {
+      console.error(error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
     res.status(204).send();
   },
 );
 
 app.get("/api/profile", authenticate, async (req: AuthenticatedRequest, res: Response) => {
-  const store = await readStore();
-  const user = store.users.find((entry) => entry.id === req.user?.id);
-  if (!user) {
-    res.status(404).json({ error: "User not found" });
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_id", req.user?.id)
+    .maybeSingle();
+  if (error) {
+    console.error(error);
+    res.status(404).json({ error: "Profile not found" });
     return;
   }
-  res.json({ profile: user.profile });
+
+  res.json({
+    profile: {
+      id: data.id,
+      userId: data.user_id,
+      bio: data.bio,
+      location: data.location,
+      website: data.website,
+    },
+  });
 });
 
 app.put("/api/profile", authenticate, async (req: AuthenticatedRequest, res: Response) => {
   const parsed = profileSchema.safeParse(req.body);
+
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten() });
     return;
   }
 
-  const store = await readStore();
-  const user = store.users.find((entry) => entry.id === req.user?.id);
-  if (!user) {
-    res.status(404).json({ error: "User not found" });
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(401).json({ error: "Unauthorized" });
     return;
   }
 
-  user.profile = {
-    ...(user.profile || { id: randomUUID(), userId: user.id }),
-    ...parsed.data,
-    userId: user.id,
-  };
-  await writeStore(store);
-  res.json({ profile: user.profile });
+  const { data, error } = await supabase
+    .from("profiles")
+    .upsert(
+      {
+        user_id: userId,
+        bio: parsed.data.bio,
+        location: parsed.data.location,
+        website: parsed.data.website,
+      },
+      { onConflict: "user_id" },
+    )
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
+  res.json({
+    profile: {
+      id: data.id,
+      userId: data.user_id,
+      bio: data.bio,
+      location: data.location,
+      website: data.website,
+    },
+  });
 });
 
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
