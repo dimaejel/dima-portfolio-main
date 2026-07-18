@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import bcrypt from "bcryptjs";
 import cors from "cors";
-import { supabase } from "./supabase.js";
+//import { supabase } from "./supabase.js";
 import dotenv from "dotenv";
 import express, { type NextFunction, type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
