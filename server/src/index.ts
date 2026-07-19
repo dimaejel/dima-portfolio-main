@@ -16,7 +16,9 @@ import {
   type UserRecord,
   type UserRole,
 } from "./storage.js";
-
+console.log("SERVER MODULE STARTED");
+const ap = express();
+console.log("EXPRESS APP CREATED");
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
