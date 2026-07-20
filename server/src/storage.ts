@@ -74,23 +74,23 @@ const dataDir = path.resolve(__dirname, "..", "data");
 const dataFile = path.join(dataDir, "cms.json");
 
 const defaultStore: ContentStore = {
-users: [
-  {
-    id: "admin-1",
-    email: "admin@example.com",
-    password: "$2a$10$qUHnjCWcbACQ4TdU8ooPV.fON7dDF/u7mbocSqxhjvzf8zGDyIOyq",
-    name: "Admin",
-    role: "ADMIN",
-    createdAt: new Date().toISOString(),
-    profile: {
-      id: "profile-1",
-      userId: "admin-1",
-      bio: "Portfolio Administrator",
-      location: "",
-      website: "",
+  users: [
+    {
+      id: "admin-1",
+      email: "admin@example.com",
+      password: "$2a$10$qUHnjCWcbACQ4TdU8ooPV.fON7dDF/u7mbocSqxhjvzf8zGDyIOyq",
+      name: "Admin",
+      role: "ADMIN",
+      createdAt: new Date().toISOString(),
+      profile: {
+        id: "profile-1",
+        userId: "admin-1",
+        bio: "Portfolio Administrator",
+        location: "",
+        website: "",
+      },
     },
-  },
-],
+  ],
   projects: [
     {
       id: "project-1",
@@ -142,7 +142,11 @@ users: [
       company: "University · Academic",
       period: "[Year]",
       type: "Academic",
-      bullets: ["Led a team to design and deliver a full-stack project.", "Applied software engineering best practices.", "Presented the final deliverable to faculty."],
+      bullets: [
+        "Led a team to design and deliver a full-stack project.",
+        "Applied software engineering best practices.",
+        "Presented the final deliverable to faculty.",
+      ],
     },
     {
       id: "experience-2",
@@ -150,7 +154,11 @@ users: [
       company: "Self-Employed · Freelance",
       period: "[Year] – Present",
       type: "Freelance",
-      bullets: ["Built websites for local clients.", "Managed project lifecycle from planning to launch.", "Maintained post-launch support."],
+      bullets: [
+        "Built websites for local clients.",
+        "Managed project lifecycle from planning to launch.",
+        "Maintained post-launch support.",
+      ],
     },
   ],
   certificates: [
@@ -201,10 +209,12 @@ export async function writeStore(store: ContentStore) {
   await writeFile(dataFile, JSON.stringify(store, null, 2));
 }
 export async function testSupabase() {
-  const { data, error } = await supabase
-    .from("projects")
-    .select("*");
+  if (!supabase) {
+    console.error("Supabase is not initialized");
+    return;
+  }
 
+  const { data, error } = await supabase.from("projects").select("*");
   if (error) {
     console.log(error);
     return;
