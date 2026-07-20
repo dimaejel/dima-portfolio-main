@@ -1,18 +1,24 @@
+console.log("SUPABASE MODULE STARTED");
+console.log("SUPABASE_URL EXISTS:", Boolean(process.env.SUPABASE_URL));
+console.log("SUPABASE_KEY EXISTS:", Boolean(process.env.SUPABASE_KEY));
+
 import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 
+if (!supabaseUrl || !supabaseKey) {
+  console.error("Missing Supabase environment variables");
+}
+
 let client: ReturnType<typeof createClient> | null = null;
 
-try {
-  if (supabaseUrl && supabaseKey) {
+if (supabaseUrl && supabaseKey) {
+  try {
     client = createClient(supabaseUrl, supabaseKey);
-  } else {
-    console.error("Missing Supabase environment variables");
+  } catch (err) {
+    console.error("Failed to initialize Supabase client (check SUPABASE_URL format):", err);
   }
-} catch (error) {
-  console.error("Failed to initialize Supabase:", error);
 }
 
 export const supabase = client;
