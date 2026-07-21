@@ -166,82 +166,125 @@ app.post("/api/auth/register", async (req: Request, res: Response) => {
     password?: string;
     name?: string;
   };
+
   if (!email || !password || !name) {
     res.status(400).json({ error: "Email, password, and name are required" });
     return;
   }
 
-  const store = await readStore();
-  const existing = store.users.find((user) => user.email.toLowerCase() === email.toLowerCase());
+  const { data: existing } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email.toLowerCase())
+    .maybeSingle();
+
   if (existing) {
     res.status(409).json({ error: "Email already in use" });
     return;
   }
 
   const hashed = await bcrypt.hash(password, 10);
-  const user: UserRecord = {
-    id: randomUUID(),
-    email,
-    password: hashed,
-    name,
-    role: "USER",
-    createdAt: new Date().toISOString(),
-    profile: {
-      id: randomUUID(),
-      userId: "",
-      bio: "",
-      location: "",
-      website: "",
-    },
-  };
-  user.profile!.userId = user.id;
 
-  store.users.push(user);
-  await writeStore(store);
+  const { data: user, error } = await supabase
+    .from("users")
+    .insert({
+      email: email.toLowerCase(),
+      password: hashed,
+      name,
+      role: "USER",
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
 
   res.status(201).json({
-    token: signToken({ id: user.id, email: user.email, name: user.name, role: user.role }),
+    token: signToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    }),
     user: serializeUser(user),
   });
 });
 
 app.post("/api/auth/login", async (req: Request, res: Response) => {
-  const { email, password } = req.body as { email?: string; password?: string };
+  const { email, password } = req.body as {
+    email?: string;
+    password?: string;
+  };
+
   if (!email || !password) {
     res.status(400).json({ error: "Email and password are required" });
     return;
   }
 
-  const store = await readStore();
-  const user = store.users.find((entry) => entry.email.toLowerCase() === email.toLowerCase());
-  if (!user) {
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email.toLowerCase())
+    .single();
+
+  if (error || !user) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
 
   const valid = await bcrypt.compare(password, user.password);
+
   if (!valid) {
     res.status(401).json({ error: "Invalid credentials" });
     return;
   }
 
   res.json({
-    token: signToken({ id: user.id, email: user.email, name: user.name, role: user.role }),
-    user: serializeUser(user),
+    token: signToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    }),
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
   });
 });
 
 app.get("/api/auth/me", authenticate, async (req: AuthenticatedRequest, res: Response) => {
-  const store = await readStore();
-  const user = store.users.find((entry) => entry.id === req.user?.id);
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", req.user?.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+    return;
+  }
+
   if (!user) {
     res.status(404).json({ error: "User not found" });
     return;
   }
 
-  res.json({ user: serializeUser(user) });
+  res.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+    },
+  });
 });
-
 app.get("/api/projects", async (_req, res: Response) => {
   const { data, error } = await supabase.from("projects").select("*");
 
