@@ -365,9 +365,7 @@ app.get("/api/auth/me", authenticate, async (req: AuthenticatedRequest, res: Res
 ========================= */
 
 app.get("/api/projects", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("projects").select("*").order("created_at", {
-    ascending: false,
-  });
+  const { data, error } = await supabase.from("projects").select("*");
 
   if (error) {
     console.error(error);
@@ -650,9 +648,7 @@ app.delete(
 ========================= */
 
 app.get("/api/experience", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("experience").select("*").order("created_at", {
-    ascending: false,
-  });
+  const { data, error } = await supabase.from("experience").select("*");
 
   if (error) {
     console.error(error);
@@ -788,9 +784,7 @@ app.delete(
 ========================= */
 
 app.get("/api/certificates", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("certificates").select("*").order("created_at", {
-    ascending: false,
-  });
+  const { data, error } = await supabase.from("certificates").select("*");
 
   if (error) {
     console.error(error);
