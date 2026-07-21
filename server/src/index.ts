@@ -1,33 +1,18 @@
-import { randomUUID } from "node:crypto";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import "dotenv/config";
 import bcrypt from "bcryptjs";
 import cors from "cors";
-import { supabase } from "./supabase.js";
-import dotenv from "dotenv";
 import express, { type NextFunction, type Request, type Response } from "express";
 import jwt from "jsonwebtoken";
-import multer from "multer";
 import { z } from "zod";
-import {
-  readStore,
-  writeStore,
-  type ContentStore,
-  type UserRecord,
-  type UserRole,
-} from "./storage.js";
-console.log("SERVER MODULE STARTED");
-const ap = express();
-console.log("EXPRESS APP CREATED");
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
+import { supabase } from "./supabase.js";
 
 const app = express();
+
 const port = Number(process.env.PORT || 4000);
-const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
+
 const jwtSecret = process.env.JWT_SECRET || "dev-secret";
+
+const frontendOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 
 const allowedOrigins = frontendOrigin
   .split(",")
@@ -40,28 +25,14 @@ app.use(
     credentials: true,
   }),
 );
+
 app.use(express.json());
-app.use("/uploads", express.static(path.resolve(__dirname, "..", "uploads")));
 
-const storage = multer.diskStorage({
-  destination: path.resolve(__dirname, "..", "uploads"),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${randomUUID()}${ext}`);
-  },
-});
+/* =========================
+   TYPES
+========================= */
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-      return;
-    }
-    cb(new Error("Only image uploads are allowed"));
-  },
-});
+type UserRole = "ADMIN" | "USER";
 
 type AuthUser = {
   id: string;
@@ -70,43 +41,60 @@ type AuthUser = {
   role: UserRole;
 };
 
-type AuthenticatedRequest = Request & { user?: AuthUser };
+type AuthenticatedRequest = Request & {
+  user?: AuthUser;
+};
 
-const authenticate = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+/* =========================
+   AUTHENTICATION
+========================= */
+
+const authenticate = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const header = req.header("authorization");
+
   if (!header?.startsWith("Bearer ")) {
-    res.status(401).json({ error: "Missing bearer token" });
+    res.status(401).json({
+      error: "Missing bearer token",
+    });
     return;
   }
 
   const token = header.slice(7);
+
   try {
     const decoded = jwt.verify(token, jwtSecret) as AuthUser;
+
     req.user = decoded;
+
     next();
   } catch {
-    res.status(401).json({ error: "Invalid or expired token" });
+    res.status(401).json({
+      error: "Invalid or expired token",
+    });
   }
 };
 
 const authorize =
   (roles: UserRole[]) => (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
-      res.status(403).json({ error: "Forbidden" });
+      res.status(403).json({
+        error: "Forbidden",
+      });
       return;
     }
+
     next();
   };
 
-const serializeUser = (user: UserRecord) => ({
-  id: user.id,
-  email: user.email,
-  name: user.name,
-  role: user.role,
-  profile: user.profile,
-});
+const signToken = (user: AuthUser) => {
+  return jwt.sign(user, jwtSecret, {
+    expiresIn: "7d",
+  });
+};
 
-const signToken = (user: AuthUser) => jwt.sign(user, jwtSecret, { expiresIn: "7d" });
+/* =========================
+   VALIDATION SCHEMAS
+========================= */
 
 const projectSchema = z.object({
   title: z.string().min(1),
@@ -122,7 +110,11 @@ const projectSchema = z.object({
 const skillSchema = z.object({
   title: z.string().min(1),
   skills: z.array(
-    z.object({ name: z.string().min(1), badge: z.string().min(1), color: z.string().min(1) }),
+    z.object({
+      name: z.string().min(1),
+      badge: z.string().min(1),
+      color: z.string().min(1),
+    }),
   ),
 });
 
@@ -149,148 +141,241 @@ const profileSchema = z.object({
   website: z.string().optional(),
 });
 
-app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, status: "healthy" });
-});
-app.get("/test-db", async (_req, res) => {
-  const { data, error } = await supabase.from("projects").select("*");
+/* =========================
+   HEALTH
+========================= */
 
+app.get("/api/health", (_req, res) => {
   res.json({
-    data,
-    error,
+    ok: true,
+    status: "healthy",
+    supabaseConfigured: Boolean(process.env.SUPABASE_URL) && Boolean(process.env.SUPABASE_KEY),
   });
 });
+
+/* =========================
+   AUTH - REGISTER
+========================= */
+
 app.post("/api/auth/register", async (req: Request, res: Response) => {
-  const { email, password, name } = req.body as {
-    email?: string;
-    password?: string;
-    name?: string;
-  };
+  try {
+    const { email, password, name } = req.body as {
+      email?: string;
+      password?: string;
+      name?: string;
+    };
 
-  if (!email || !password || !name) {
-    res.status(400).json({ error: "Email, password, and name are required" });
-    return;
-  }
+    if (!email || !password || !name) {
+      res.status(400).json({
+        error: "Email, password, and name are required",
+      });
+      return;
+    }
 
-  const { data: existing } = await supabase
-    .from("users")
-    .select("id")
-    .eq("email", email.toLowerCase())
-    .maybeSingle();
+    const normalizedEmail = email.toLowerCase();
 
-  if (existing) {
-    res.status(409).json({ error: "Email already in use" });
-    return;
-  }
+    const { data: existing, error: existingError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", normalizedEmail)
+      .maybeSingle();
 
-  const hashed = await bcrypt.hash(password, 10);
+    if (existingError) {
+      console.error(existingError);
 
-  const { data: user, error } = await supabase
-    .from("users")
-    .insert({
-      email: email.toLowerCase(),
-      password: hashed,
-      name,
-      role: "USER",
-    })
-    .select()
-    .single();
+      res.status(500).json({
+        error: existingError.message,
+      });
 
-  if (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-    return;
-  }
+      return;
+    }
 
-  res.status(201).json({
-    token: signToken({
+    if (existing) {
+      res.status(409).json({
+        error: "Email already in use",
+      });
+
+      return;
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const { data: user, error } = await supabase
+      .from("users")
+      .insert({
+        email: normalizedEmail,
+        password: hashedPassword,
+        name,
+        role: "USER",
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: error.message,
+      });
+
+      return;
+    }
+
+    const authUser: AuthUser = {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
-    }),
-    user: serializeUser(user),
-  });
+    };
+
+    res.status(201).json({
+      token: signToken(authUser),
+      user: authUser,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Registration failed",
+    });
+  }
 });
+
+/* =========================
+   AUTH - LOGIN
+========================= */
 
 app.post("/api/auth/login", async (req: Request, res: Response) => {
-  const { email, password } = req.body as {
-    email?: string;
-    password?: string;
-  };
+  try {
+    const { email, password } = req.body as {
+      email?: string;
+      password?: string;
+    };
 
-  if (!email || !password) {
-    res.status(400).json({ error: "Email and password are required" });
-    return;
-  }
+    if (!email || !password) {
+      res.status(400).json({
+        error: "Email and password are required",
+      });
 
-  const { data: user, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("email", email.toLowerCase())
-    .single();
+      return;
+    }
 
-  if (error || !user) {
-    res.status(401).json({ error: "Invalid credentials" });
-    return;
-  }
+    const normalizedEmail = email.toLowerCase();
 
-  const valid = await bcrypt.compare(password, user.password);
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", normalizedEmail)
+      .maybeSingle();
 
-  if (!valid) {
-    res.status(401).json({ error: "Invalid credentials" });
-    return;
-  }
+    if (error) {
+      console.error(error);
 
-  res.json({
-    token: signToken({
+      res.status(500).json({
+        error: error.message,
+      });
+
+      return;
+    }
+
+    if (!user) {
+      res.status(401).json({
+        error: "Invalid credentials",
+      });
+
+      return;
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword) {
+      res.status(401).json({
+        error: "Invalid credentials",
+      });
+
+      return;
+    }
+
+    const authUser: AuthUser = {
       id: user.id,
       email: user.email,
       name: user.name,
       role: user.role,
-    }),
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    },
-  });
+    };
+
+    res.json({
+      token: signToken(authUser),
+      user: authUser,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Login failed",
+    });
+  }
 });
 
+/* =========================
+   AUTH - ME
+========================= */
+
 app.get("/api/auth/me", authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(401).json({
+      error: "Unauthorized",
+    });
+
+    return;
+  }
+
   const { data: user, error } = await supabase
     .from("users")
-    .select("*")
-    .eq("id", req.user?.id)
+    .select("id, email, name, role")
+    .eq("id", userId)
     .maybeSingle();
 
   if (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message,
+    });
+
     return;
   }
 
   if (!user) {
-    res.status(404).json({ error: "User not found" });
+    res.status(404).json({
+      error: "User not found",
+    });
+
     return;
   }
 
   res.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    },
+    user,
   });
 });
+
+/* =========================
+   PROJECTS - GET
+========================= */
+
 app.get("/api/projects", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("projects").select("*");
+  const { data, error } = await supabase.from("projects").select("*").order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message,
+    });
+
     return;
   }
 
@@ -301,14 +386,23 @@ app.get("/api/projects", async (_req, res: Response) => {
     })),
   );
 });
+
+/* =========================
+   PROJECTS - CREATE
+========================= */
+
 app.post(
   "/api/projects",
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = projectSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -329,7 +423,11 @@ app.post(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
@@ -339,6 +437,11 @@ app.post(
     });
   },
 );
+
+/* =========================
+   PROJECTS - UPDATE
+========================= */
+
 app.put(
   "/api/projects/:id",
   authenticate,
@@ -347,7 +450,10 @@ app.put(
     const parsed = projectSchema.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -370,12 +476,10 @@ app.put(
     if (error) {
       console.error(error);
 
-      if (error.code === "PGRST116") {
-        res.status(404).json({ error: "Project not found" });
-        return;
-      }
+      res.status(500).json({
+        error: error.message,
+      });
 
-      res.status(500).json({ error: error.message });
       return;
     }
 
@@ -385,6 +489,11 @@ app.put(
     });
   },
 );
+
+/* =========================
+   PROJECTS - DELETE
+========================= */
+
 app.delete(
   "/api/projects/:id",
   authenticate,
@@ -394,56 +503,56 @@ app.delete(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
     res.status(204).send();
   },
 );
-app.post(
-  "/api/projects/:id/image",
-  authenticate,
-  authorize(["ADMIN"]),
-  upload.single("image"),
-  async (req: AuthenticatedRequest, res: Response) => {
-    if (!req.file) {
-      res.status(400).json({ error: "No image uploaded" });
-      return;
-    }
 
-    const store = await readStore();
-    const index = store.projects.findIndex((item) => item.id === req.params.id);
-    if (index < 0) {
-      res.status(404).json({ error: "Project not found" });
-      return;
-    }
-
-    store.projects[index].gradient = `/uploads/${req.file.filename}`;
-    await writeStore(store);
-    res.json({ imageUrl: `/uploads/${req.file.filename}` });
-  },
-);
+/* =========================
+   SKILLS - GET
+========================= */
 
 app.get("/api/skills", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("skills").select("*");
+  const { data, error } = await supabase.from("skills").select("*").order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message,
+    });
+
     return;
   }
 
   res.json(data);
 });
+
+/* =========================
+   SKILLS - CREATE
+========================= */
+
 app.post(
   "/api/skills",
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = skillSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -458,13 +567,21 @@ app.post(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
     res.status(201).json(data);
   },
 );
+
+/* =========================
+   SKILLS - UPDATE
+========================= */
 
 app.put(
   "/api/skills/:id",
@@ -474,7 +591,10 @@ app.put(
     const parsed = skillSchema.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -491,18 +611,20 @@ app.put(
     if (error) {
       console.error(error);
 
-      if (error.code === "PGRST116") {
-        res.status(404).json({ error: "Skill group not found" });
-        return;
-      }
+      res.status(500).json({
+        error: error.message,
+      });
 
-      res.status(500).json({ error: error.message });
       return;
     }
 
     res.json(data);
   },
 );
+
+/* =========================
+   SKILLS - DELETE
+========================= */
 
 app.delete(
   "/api/skills/:id",
@@ -513,24 +635,43 @@ app.delete(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
     res.status(204).send();
   },
 );
+
+/* =========================
+   EXPERIENCE - GET
+========================= */
+
 app.get("/api/experience", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("experience").select("*");
+  const { data, error } = await supabase.from("experience").select("*").order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message,
+    });
+
     return;
   }
 
   res.json(data);
 });
+
+/* =========================
+   EXPERIENCE - CREATE
+========================= */
 
 app.post(
   "/api/experience",
@@ -538,8 +679,12 @@ app.post(
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = experienceSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -557,7 +702,11 @@ app.post(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
@@ -565,14 +714,22 @@ app.post(
   },
 );
 
+/* =========================
+   EXPERIENCE - UPDATE
+========================= */
+
 app.put(
   "/api/experience/:id",
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = experienceSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -591,13 +748,21 @@ app.put(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
     res.json(data);
   },
 );
+
+/* =========================
+   EXPERIENCE - DELETE
+========================= */
 
 app.delete(
   "/api/experience/:id",
@@ -608,7 +773,11 @@ app.delete(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
@@ -616,17 +785,31 @@ app.delete(
   },
 );
 
+/* =========================
+   CERTIFICATES - GET
+========================= */
+
 app.get("/api/certificates", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("certificates").select("*");
+  const { data, error } = await supabase.from("certificates").select("*").order("created_at", {
+    ascending: false,
+  });
 
   if (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message,
+    });
+
     return;
   }
 
   res.json(data);
 });
+
+/* =========================
+   CERTIFICATES - CREATE
+========================= */
 
 app.post(
   "/api/certificates",
@@ -634,8 +817,12 @@ app.post(
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = certificateSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -653,7 +840,11 @@ app.post(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
@@ -661,14 +852,22 @@ app.post(
   },
 );
 
+/* =========================
+   CERTIFICATES - UPDATE
+========================= */
+
 app.put(
   "/api/certificates/:id",
   authenticate,
   authorize(["ADMIN"]),
   async (req: AuthenticatedRequest, res: Response) => {
     const parsed = certificateSchema.safeParse(req.body);
+
     if (!parsed.success) {
-      res.status(400).json({ error: parsed.error.flatten() });
+      res.status(400).json({
+        error: parsed.error.flatten(),
+      });
+
       return;
     }
 
@@ -687,13 +886,21 @@ app.put(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
     res.json(data);
   },
 );
+
+/* =========================
+   CERTIFICATES - DELETE
+========================= */
 
 app.delete(
   "/api/certificates/:id",
@@ -704,7 +911,11 @@ app.delete(
 
     if (error) {
       console.error(error);
-      res.status(500).json({ error: error.message });
+
+      res.status(500).json({
+        error: error.message,
+      });
+
       return;
     }
 
@@ -712,15 +923,42 @@ app.delete(
   },
 );
 
+/* =========================
+   PROFILE - GET
+========================= */
+
 app.get("/api/profile", authenticate, async (req: AuthenticatedRequest, res: Response) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    res.status(401).json({
+      error: "Unauthorized",
+    });
+
+    return;
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .select("*")
-    .eq("user_id", req.user?.id)
+    .eq("user_id", userId)
     .maybeSingle();
+
   if (error) {
     console.error(error);
-    res.status(404).json({ error: "Profile not found" });
+
+    res.status(500).json({
+      error: error.message,
+    });
+
+    return;
+  }
+
+  if (!data) {
+    res.json({
+      profile: null,
+    });
+
     return;
   }
 
@@ -729,24 +967,35 @@ app.get("/api/profile", authenticate, async (req: AuthenticatedRequest, res: Res
       id: data.id,
       userId: data.user_id,
       bio: data.bio,
+      avatarUrl: data.avatar_url,
       location: data.location,
       website: data.website,
     },
   });
 });
 
+/* =========================
+   PROFILE - UPDATE
+========================= */
+
 app.put("/api/profile", authenticate, async (req: AuthenticatedRequest, res: Response) => {
   const parsed = profileSchema.safeParse(req.body);
 
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.flatten() });
+    res.status(400).json({
+      error: parsed.error.flatten(),
+    });
+
     return;
   }
 
   const userId = req.user?.id;
 
   if (!userId) {
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({
+      error: "Unauthorized",
+    });
+
     return;
   }
 
@@ -756,17 +1005,24 @@ app.put("/api/profile", authenticate, async (req: AuthenticatedRequest, res: Res
       {
         user_id: userId,
         bio: parsed.data.bio,
+        avatar_url: parsed.data.avatarUrl,
         location: parsed.data.location,
         website: parsed.data.website,
       },
-      { onConflict: "user_id" },
+      {
+        onConflict: "user_id",
+      },
     )
     .select()
     .single();
 
   if (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+
+    res.status(500).json({
+      error: error.message,
+    });
+
     return;
   }
 
@@ -775,27 +1031,33 @@ app.put("/api/profile", authenticate, async (req: AuthenticatedRequest, res: Res
       id: data.id,
       userId: data.user_id,
       bio: data.bio,
+      avatarUrl: data.avatar_url,
       location: data.location,
       website: data.website,
     },
   });
 });
 
+/* =========================
+   ERROR HANDLER
+========================= */
+
 app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error(err);
-  res.status(500).json({ error: "Internal server error" });
+
+  res.status(500).json({
+    error: "Internal server error",
+  });
 });
 
+/* =========================
+   LOCAL SERVER ONLY
+========================= */
+
 if (process.env.NODE_ENV !== "production") {
-  app.listen(port, async () => {
+  app.listen(port, () => {
     console.log(`Portfolio CMS server listening on http://localhost:${port}`);
   });
 }
-app.get("/api/health", (_req, res) => {
-  res.json({
-    status: "ok",
-    supabaseUrl: !!process.env.SUPABASE_URL,
-    supabaseKey: !!process.env.SUPABASE_KEY,
-  });
-});
+
 export default app;
