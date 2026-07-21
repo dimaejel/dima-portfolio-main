@@ -55,5 +55,21 @@ app.get("/api/experience", async (_req, res) => {
     });
   }
 });
+app.get("/api/certificates", async (_req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("certificates")
+      .select("*");
 
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json(data);
+  } catch (error) {
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
 export default app;
