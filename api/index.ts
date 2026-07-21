@@ -1,8 +1,3 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
+import app from "../server/src/index.ts";
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  res.status(200).json({
-    status: "ok",
-    message: "API is working",
-  });
-}
+export default app;
