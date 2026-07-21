@@ -520,9 +520,7 @@ app.delete(
 ========================= */
 
 app.get("/api/skills", async (_req, res: Response) => {
-  const { data, error } = await supabase.from("skills").select("*").order("created_at", {
-    ascending: false,
-  });
+  const { data, error } = await supabase.from("skills").select("*");
 
   if (error) {
     console.error(error);
