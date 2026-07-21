@@ -748,5 +748,11 @@ if (process.env.NODE_ENV !== "production") {
     console.log(`Portfolio CMS server listening on http://localhost:${port}`);
   });
 }
-
+app.get("/api/health", (_req, res) => {
+  res.json({
+    status: "ok",
+    supabaseUrl: !!process.env.SUPABASE_URL,
+    supabaseKey: !!process.env.SUPABASE_KEY,
+  });
+});
 export default app;
