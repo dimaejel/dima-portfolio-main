@@ -82,7 +82,7 @@ export function Hero() {
 
   const handleDownload = () => {
     const link = document.createElement("a");
-    link.href = "public/Dima Ejel.pdf";
+    link.href = "/Dima%20Ejel.pdf";
     link.download = "Dima Ejel.pdf";
     link.click();
   };
