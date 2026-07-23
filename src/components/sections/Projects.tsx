@@ -25,8 +25,8 @@ export function Projects() {
           Things I've Built
         </h2>
         <p className="text-text-secondary mt-4">
-          A selection of academic, personal, and freelance work spanning the web, desktop,
-          and database design.
+          A selection of academic, personal, and freelance work spanning the web, desktop, and
+          database design.
         </p>
       </Reveal>
 
@@ -81,7 +81,15 @@ function ProjectCard({ project }: { project: ProjectItem }) {
         className={`relative h-52 bg-gradient-to-br ${project.gradient} flex items-center justify-center overflow-hidden`}
       >
         <div className="absolute inset-0 dot-grid opacity-20" />
-        <Icon className="h-20 w-20 text-white/90 drop-shadow-lg" strokeWidth={1.2} />
+        {project.image ? (
+          <img
+            src={project.image}
+            alt={project.title}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <Icon className="h-20 w-20 text-white/90 drop-shadow-lg" strokeWidth={1.2} />
+        )}
         {project.featured && (
           <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-amber-400/95 text-amber-950 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider">
             <Sparkles className="h-3 w-3" /> Featured

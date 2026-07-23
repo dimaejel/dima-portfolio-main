@@ -1,10 +1,4 @@
-import {
-  Code2,
-  Database,
-  Globe,
-  GraduationCap,
-  Star,
-} from "lucide-react";
+import { Code2, Database, Globe, GraduationCap, Star } from "lucide-react";
 
 export const personalInfo = {
   name: "Dima Ejel",
@@ -83,54 +77,10 @@ export type Project = {
   techStack: string[];
   github: string;
   demo: string;
+  image?: string;
   gradient: string;
   featured?: boolean;
 };
-
-export const projects: Project[] = [
-  {
-    title: "Hospital Management Website",
-    category: "Web",
-    description:
-      "A full-featured web application for managing hospital operations including patient registration, appointment scheduling, doctor management, and medical record tracking. Built with a focus on clean UI and reliable data management.",
-    techStack: ["HTML", "CSS", "JavaScript", "MySQL"],
-    github: "#",
-    demo: "#",
-    gradient: "from-teal-500 to-blue-600",
-    featured: true,
-  },
-  
-  {
-    title: "OpenGL 3D Ball Simulation",
-    category: "Desktop",
-    description:
-      "An interactive 3D graphics simulation using OpenGL featuring real-time rendering of a 3D ball with lighting, textures, physics-based bouncing, and keyboard controls for camera movement.",
-    techStack: ["C++", "OpenGL", "GLUT", "3D Graphics"],
-    github: "#",
-    demo: "N/A — Desktop App",
-    gradient: "from-orange-500 to-red-600",
-  },
-  {
-    title: "Portfolio Website",
-    category: "Web",
-    description:
-      "This very portfolio — a modern, fully responsive personal website built with React and TypeScript showcasing projects, skills, and professional background. Features smooth animations and a clean, dark design system.",
-    techStack: ["React", "TypeScript", "Tailwind CSS", "Motion"],
-    github: "#",
-    demo: "#",
-    gradient: "from-blue-500 to-violet-600",
-  },
-  {
-    title: "E-Commerce Web Application (Team Project | Full-Stack)",
-    category: "Web",
-    description:
-      "A full-stack e-commerce web application built with modern technologies, featuring user authentication, product management, shopping cart functionality, and secure payment processing.",
-    techStack: ["HTML", "SQL"],
-    github: "#",
-    demo: "N/A",
-    gradient: "from-emerald-500 to-teal-600",
-  },
-];
 
 export const education = {
   degree: "Bachelor of Science in Computer Science",
@@ -159,7 +109,6 @@ export type Experience = {
 };
 
 export const experience: Experience[] = [
-
   {
     role: "Academic Project Lead",
     company: "University · Academic",
@@ -193,15 +142,6 @@ export const experience: Experience[] = [
       "Contributed to club social media and website content",
     ],
   },
-];
-
-export const certifications = [
-  { title: "Introduction to Web Development", issuer: "Coursera", date: "2024", link: "#", gradient: "from-blue-500 to-cyan-500" },
-  { title: "Java Programming Masterclass", issuer: "Udemy", date: "2023", link: "#", gradient: "from-orange-500 to-red-500" },
-  { title: "SQL and Database Design", issuer: "edX", date: "2023", link: "#", gradient: "from-emerald-500 to-teal-500" },
-  { title: "React - The Complete Guide", issuer: "Udemy", date: "2024", link: "#", gradient: "from-sky-500 to-indigo-500" },
-  { title: "Git & GitHub Essentials", issuer: "LinkedIn Learning", date: "2023", link: "#", gradient: "from-violet-500 to-purple-500" },
-  { title: "CS50: Introduction to Computer Science", issuer: "Harvard/edX", date: "2022", link: "#", gradient: "from-rose-500 to-pink-500" },
 ];
 
 export const achievements = [

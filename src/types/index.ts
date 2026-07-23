@@ -6,6 +6,7 @@ export interface ProjectItem {
   techStack: string[];
   github: string;
   demo: string;
+  image?: string;
   gradient: string;
   featured?: boolean;
 }

@@ -5,6 +5,11 @@ import express, { type NextFunction, type Request, type Response } from "express
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { supabase } from "./supabase.js";
+import multer from "multer";
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
 
 const app = express();
 
@@ -101,6 +106,7 @@ const projectSchema = z.object({
   category: z.string().min(1),
   description: z.string().min(1),
   techStack: z.array(z.string()),
+  image: z.string().optional().default(""),
   github: z.string().optional().default("#"),
   demo: z.string().optional().default("#"),
   gradient: z.string().optional().default("from-slate-500 to-slate-600"),
@@ -388,7 +394,47 @@ app.get("/api/projects", async (_req, res: Response) => {
 /* =========================
    PROJECTS - CREATE
 ========================= */
+app.post(
+  "/api/projects/upload-image",
+  authenticate,
+  authorize(["ADMIN"]),
+  upload.single("image"),
+  async (req: AuthenticatedRequest, res: Response) => {
+    if (!req.file) {
+      res.status(400).json({
+        error: "No image uploaded",
+      });
+      return;
+    }
 
+    const fileExtension = req.file.originalname.split(".").pop() || "jpg";
+    const fileName = `projects/${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2)}.${fileExtension}`;
+
+    const { error } = await supabase.storage
+      .from("project-images")
+      .upload(fileName, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: error.message,
+      });
+      return;
+    }
+
+    const { data } = supabase.storage.from("project-images").getPublicUrl(fileName);
+
+    res.json({
+      imageUrl: data.publicUrl,
+    });
+  },
+);
 app.post(
   "/api/projects",
   authenticate,
@@ -413,6 +459,7 @@ app.post(
         techstack: parsed.data.techStack,
         github: parsed.data.github,
         demo: parsed.data.demo,
+        image: parsed.data.image,
         gradient: parsed.data.gradient,
         featured: parsed.data.featured,
       })
@@ -464,6 +511,7 @@ app.put(
         techstack: parsed.data.techStack,
         github: parsed.data.github,
         demo: parsed.data.demo,
+        image: parsed.data.image,
         gradient: parsed.data.gradient,
         featured: parsed.data.featured,
       })
