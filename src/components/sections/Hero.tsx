@@ -1,14 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import {
-  ArrowDown,
-  ArrowUp,
-  Download,
-  Github,
-  Linkedin,
-  Mail,
-  User,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, Download, Github, Linkedin, Mail, User } from "lucide-react";
 import { personalInfo, navLinks } from "@/data/portfolio";
 
 function Typewriter({ words }: { words: string[] }) {
@@ -59,9 +51,7 @@ function ProfilePhoto() {
       <div className="relative h-full w-full rounded-full bg-gradient-to-br from-elevated to-surface border border-border flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 dot-grid opacity-30" />
         <User className="h-24 w-24 text-text-muted relative" />
-        <span className="mt-3 text-xs font-mono text-text-muted relative">
-          Your Photo Here
-        </span>
+        <span className="mt-3 text-xs font-mono text-text-muted relative">Your Photo Here</span>
       </div>
     );
   }
@@ -73,14 +63,14 @@ function ProfilePhoto() {
         alt={`${personalInfo.name} — profile photo`}
         onError={() => setHasError(true)}
         className="h-full w-full object-cover"
-          style={{
-        position: "absolute",
-        width: "150%",
-        height: "100%",
-        top: "0.5%",
-        left: "-1.5%",
-        objectFit: "cover",
-      }}
+        style={{
+          position: "absolute",
+          width: "150%",
+          height: "100%",
+          top: "0.5%",
+          left: "-1.5%",
+          objectFit: "cover",
+        }}
       />
       <div className="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-background/40 to-transparent" />
     </div>
@@ -91,11 +81,11 @@ export function Hero() {
   const orbitChips = ["React", "Java", "Node.js", "MySQL"];
 
   const handleDownload = () => {
-  const link = document.createElement("a");
-  link.href = "public/dimaejel_cv.pdf";
-  link.download = "Dima_Ejel_CV.pdf";
-  link.click();
-};
+    const link = document.createElement("a");
+    link.href = "public/Dima Ejel.pdf";
+    link.download = "Dima Ejel.pdf";
+    link.click();
+  };
 
   return (
     <section
@@ -225,13 +215,8 @@ export function Hero() {
             className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 max-w-xl"
           >
             {personalInfo.stats.map((s) => (
-              <div
-                key={s.label}
-                className="rounded-xl border border-border bg-surface px-4 py-3"
-              >
-                <div className="font-display font-bold text-foreground text-lg">
-                  {s.value}
-                </div>
+              <div key={s.label} className="rounded-xl border border-border bg-surface px-4 py-3">
+                <div className="font-display font-bold text-foreground text-lg">{s.value}</div>
                 <div className="text-xs text-text-muted">{s.label}</div>
               </div>
             ))}
