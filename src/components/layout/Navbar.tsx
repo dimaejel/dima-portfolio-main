@@ -33,12 +33,12 @@ export function Navbar() {
     return () => obs.disconnect();
   }, []);
 
-const handleDownload = () => {
-  const link = document.createElement("a");
-  link.href = "public/dimaejel_cv.pdf";
-  link.download = "Dima_Ejel_CV.pdf";
-  link.click();
-};
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = "public/Dima Ejel.pdf";
+    link.download = "Dima Ejel.pdf";
+    link.click();
+  };
 
   return (
     <>
@@ -50,9 +50,7 @@ const handleDownload = () => {
       </a>
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-background/85 backdrop-blur-md border-b border-border"
-            : "bg-transparent"
+          scrolled ? "bg-background/85 backdrop-blur-md border-b border-border" : "bg-transparent"
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -60,9 +58,7 @@ const handleDownload = () => {
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-brand text-white font-bold text-sm shadow-[0_4px_20px_rgba(79,142,247,0.35)]">
               {personalInfo.initials}
             </span>
-            <span className="font-display font-bold text-foreground">
-              {personalInfo.name}
-            </span>
+            <span className="font-display font-bold text-foreground">{personalInfo.name}</span>
           </a>
 
           <nav className="hidden lg:flex items-center gap-1">
